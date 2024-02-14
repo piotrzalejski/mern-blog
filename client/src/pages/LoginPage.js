@@ -12,6 +12,7 @@ export default function LoginPage() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ userName, password }),
+      credentials: 'include',
     });
     console.log(res);
   }
