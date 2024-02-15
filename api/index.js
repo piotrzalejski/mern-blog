@@ -19,6 +19,21 @@ app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 app.use(express.json());
 app.use(cookieParser());
 
+// start server
+const startServer = async () => {
+  try {
+    await connectDB();
+    app.listen(PORT, () => {
+      console.log(`Server is running on port: ${PORT}`);
+    });
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+};
+
+startServer();
+
+// Routes
 app.post('/register', async (req, res) => {
   const { username, password } = req.body;
   await connectDB();
@@ -71,6 +86,6 @@ app.get('/profile', async (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port: ${PORT}`);
+app.post('/logout', (req, res) => {
+  res.clearCookie('token').json('Logged out');
 });

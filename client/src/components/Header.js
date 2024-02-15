@@ -16,6 +16,15 @@ export default function Header() {
     }
     fetchData();
   }, []);
+
+  function logout() {
+    fetch(`${process.env.REACT_APP_API_URL}/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+    setUsername('');
+  }
+
   return (
     <header>
       <Link to='/' className='logo'>
@@ -25,7 +34,7 @@ export default function Header() {
         {username && (
           <>
             <Link to='/new'>New Post</Link>
-            <Link to='/logout'>Logout</Link>
+            <a onClick={logout}>Logout</a>
           </>
         )}
         {!username && (
