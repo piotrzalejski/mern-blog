@@ -1,22 +1,31 @@
 import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 
 export default function LoginPage() {
-  const [userName, setUserName] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [redirect, setRedirect] = useState(false);
 
   async function handleLogin(e) {
     e.preventDefault();
-    const res = await fetch('http://localhost:4242/login', {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ userName, password }),
+      body: JSON.stringify({ username, password }),
       credentials: 'include',
     });
-    console.log(res);
+    if (res.ok) {
+      setRedirect(true);
+    } else {
+      alert('Inccorect username or password');
+    }
   }
 
+  if (redirect) {
+    return <Navigate to='/' />;
+  }
   return (
     <form className='login' onSubmit={handleLogin}>
       <h1>Login</h1>
@@ -24,8 +33,8 @@ export default function LoginPage() {
         type='text'
         id='username'
         placeholder='username'
-        value={userName}
-        onChange={(e) => setUserName(e.target.value)}
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
       />
       <input
         type='password'

@@ -1,17 +1,17 @@
 import { useState } from 'react';
 
 export default function RegisterPage() {
-  const [userName, setUserName] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   async function handleRegister(e) {
     e.preventDefault();
-    const res = await fetch('http://localhost:4242/register', {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ userName, password }),
+      body: JSON.stringify({ username, password }),
     });
     if (!res.ok) {
       console.error('Error:', res);
@@ -28,8 +28,8 @@ export default function RegisterPage() {
         type='text'
         id='username'
         placeholder='username'
-        value={userName}
-        onChange={(e) => setUserName(e.target.value)}
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
       />
       <input
         type='password'
