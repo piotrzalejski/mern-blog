@@ -1,0 +1,78 @@
+/* Basic editor styles */
+
+.tiptap > * + * {
+  margin-top: 0.7rem;
+}
+
+.tiptap ul,
+ol {
+  padding: 0 1rem;
+}
+
+.tiptap {
+  background: white;
+  color: black;
+  font-size: 1.1rem;
+  padding: 0.25rem 1rem;
+}
+
+.tiptap h1,
+.tiptap h2,
+.tiptap h3,
+.tiptap h4,
+.tiptap h5,
+.tiptap h6 {
+  line-height: 1.1;
+}
+
+.tiptap p code {
+  background: rgba(144, 144, 144, 0.1);
+  color: #616161;
+}
+
+.tiptap pre {
+  background: #0d0d0d;
+  color: #fff;
+  font-family: 'JetBrainsMono', monospace;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+}
+.tiptap pre code {
+  color: inherit;
+  padding: 0;
+  background: none;
+  font-size: 0.8rem;
+}
+
+.tiptap img {
+  max-width: 100%;
+  height: auto;
+}
+
+.tiptap blockquote {
+  padding-left: 1rem;
+  border-left: 2px solid rgba(#0d0d0d, 0.1);
+}
+
+.tiptap hr {
+  border: none;
+  border-top: 2px solid rgba(#0d0d0d, 0.1);
+  margin: 2rem 0;
+}
+
+.tiptap-menu {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0.3rem;
+  padding: 0.5rem;
+  z-index: 100;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}

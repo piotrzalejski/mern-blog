@@ -97,7 +97,8 @@ input {
   background-color: #fff;
 }
 
-button {
+.submitbtn,
+.registerbtn {
   width: 100%;
   background-color: #555;
   border: none;
@@ -108,4 +109,11 @@ button {
 
 form h1 {
   text-align: center;
+}
+
+/* Loading Header */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

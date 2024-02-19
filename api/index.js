@@ -36,7 +36,6 @@ startServer();
 // Routes
 app.post('/register', async (req, res) => {
   const { username, password } = req.body;
-  await connectDB();
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     await User.create({ username: username, password: hashedPassword });
@@ -49,8 +48,8 @@ app.post('/register', async (req, res) => {
 
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  await connectDB();
   try {
+    console.log('attempting login...');
     const user = await User.findOne({ username: username });
     if (!user) {
       res.status(400).json('User not found');
@@ -62,7 +61,7 @@ app.post('/login', async (req, res) => {
         process.env.JWT_SECRET,
         (err, token) => {
           if (err) res.status(400).json(`Error: ${err}`);
-          res.cookie('token', token).json('Logged in successfully');
+          res.cookie('token', token).json({ username, id: user._id });
         }
       );
     } else {

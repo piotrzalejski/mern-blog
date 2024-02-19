@@ -7,7 +7,7 @@ export default function Post() {
       <div className='post-info'>
         <h2>Place holder title, changes coming later this year</h2>
         <p className='post-info'>
-          <a className='post-author' href=''>
+          <a className='post-author' href='#'>
             Peter Z.
           </a>
           <time>2024-02-14 11:40</time>
