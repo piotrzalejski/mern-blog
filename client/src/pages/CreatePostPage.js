@@ -5,24 +5,29 @@ export default function CreatePostPage() {
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
   const [content, setContent] = useState('');
+  const [file, setFile] = useState('');
 
   function handleUpdate({ editor }) {
     // console.log('editor', editor.getHTML());
     setContent(editor.getHTML()); // get HTML content of the editor
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     const formData = new FormData();
-    formData.append('title', title);
-    formData.append('summary', summary);
-    formData.append('content', content);
+    formData.set('title', title);
+    formData.set('summary', summary);
+    formData.set('content', content);
     // for sake of simplicity, we are using only one image
-    formData.append('image', event.target.image.files[0]);
-
+    formData.set('image', file[0]);
     // for (const [key, value] of formData.entries()) {
     //   console.log(key, value);
     // }
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/post`, {
+      method: 'POST',
+      body: formData,
+    });
+    console.log(res);
   }
 
   return (
@@ -43,7 +48,12 @@ export default function CreatePostPage() {
           value={summary}
           onChange={(e) => setSummary(e.target.value)}
         />
-        <input type='file' id='image' accept='image/*' />
+        <input
+          type='file'
+          id='image'
+          accept='image/*'
+          onChange={(e) => setFile(e.target.files)}
+        />
         <TipTapEditor onUpdate={handleUpdate} />
         <button type='submit' className='createbtn'>
           Create Post

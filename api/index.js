@@ -1,12 +1,13 @@
 import express from 'express';
 import cors from 'cors';
-import mongoose from 'mongoose';
 import User from './models/User.js';
 import { config } from 'dotenv';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { connectDB } from './utils/db.js';
 import cookieParser from 'cookie-parser';
+import multer from 'multer';
+import fs from 'fs';
 
 // Load environment variables
 config();
@@ -18,6 +19,8 @@ const PORT = 4242;
 app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 app.use(express.json());
 app.use(cookieParser());
+
+const uploadMidware = multer({ dest: 'uploads/' });
 
 // start server
 const startServer = async () => {
@@ -87,4 +90,14 @@ app.get('/profile', async (req, res) => {
 
 app.post('/logout', (req, res) => {
   res.clearCookie('token').json('Logged out');
+});
+
+app.post('/post', uploadMidware.single('image'), async (req, res) => {
+  // saving image with original extension into uploads folder
+  const { originalname, path: oldPath } = req.file;
+  const ext = originalname.split('.').pop();
+  const newPath = oldPath + '.' + ext;
+  fs.renameSync(oldPath, newPath);
+
+  res.json(req.file);
 });
