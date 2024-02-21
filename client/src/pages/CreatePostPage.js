@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import TipTapEditor from '../components/EditorProvider.js';
+import { Navigate } from 'react-router-dom';
 
 export default function CreatePostPage() {
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
   const [content, setContent] = useState('');
   const [file, setFile] = useState('');
+  const [redirect, setRedirect] = useState(false);
 
   function handleUpdate({ editor }) {
-    // console.log('editor', editor.getHTML());
-    setContent(editor.getHTML()); // get HTML content of the editor
+    // get HTML content of the editor
+    setContent(editor.getHTML());
   }
 
   async function handleSubmit(event) {
@@ -23,13 +25,22 @@ export default function CreatePostPage() {
     // for (const [key, value] of formData.entries()) {
     //   console.log(key, value);
     // }
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/post`, {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/posts`, {
       method: 'POST',
       body: formData,
+      credentials: 'include',
     });
-    console.log(res);
+    if (res.ok) {
+      alert('Post created successfully');
+      setRedirect(true);
+    } else {
+      alert('Error creating post');
+    }
   }
 
+  if (redirect) {
+    return <Navigate to='/' />;
+  }
   return (
     <div>
       <h1>Create New Post</h1>
@@ -40,6 +51,7 @@ export default function CreatePostPage() {
           placeholder='Title'
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          required
         />
         <input
           type='text'
@@ -47,12 +59,14 @@ export default function CreatePostPage() {
           placeholder='Summary'
           value={summary}
           onChange={(e) => setSummary(e.target.value)}
+          required
         />
         <input
           type='file'
           id='image'
           accept='image/*'
           onChange={(e) => setFile(e.target.files)}
+          required
         />
         <TipTapEditor onUpdate={handleUpdate} />
         <button type='submit' className='createbtn'>

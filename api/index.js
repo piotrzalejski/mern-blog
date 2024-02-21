@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import User from './models/User.js';
+import Post from './models/Post.js';
 import { config } from 'dotenv';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -8,6 +9,11 @@ import { connectDB } from './utils/db.js';
 import cookieParser from 'cookie-parser';
 import multer from 'multer';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Load environment variables
 config();
@@ -19,6 +25,7 @@ const PORT = 4242;
 app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 app.use(express.json());
 app.use(cookieParser());
+app.use('/uploads', express.static(__dirname + '/uploads'));
 
 const uploadMidware = multer({ dest: 'uploads/' });
 
@@ -92,12 +99,50 @@ app.post('/logout', (req, res) => {
   res.clearCookie('token').json('Logged out');
 });
 
-app.post('/post', uploadMidware.single('image'), async (req, res) => {
-  // saving image with original extension into uploads folder
-  const { originalname, path: oldPath } = req.file;
-  const ext = originalname.split('.').pop();
-  const newPath = oldPath + '.' + ext;
-  fs.renameSync(oldPath, newPath);
+app.post('/posts', uploadMidware.single('image'), async (req, res) => {
+  const { title, summary, content } = req.body;
+  try {
+    if (!title || !summary || !content) {
+      throw new Error('Title, summary, and content are required');
+    }
+    if (!req.file) {
+      throw new Error('Image is required');
+    }
 
-  res.json(req.file);
+    // saving image with original extension into uploads folder
+    const { originalname, path: oldPath } = req.file;
+    const ext = originalname.split('.').pop();
+    const newPath = oldPath + '.' + ext;
+    fs.renameSync(oldPath, newPath);
+
+    const { token } = req.cookies;
+    jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+      if (err) res.status(400).json(`Error: ${err}`);
+      // create post, save to db
+      const postDoc = await Post.create({
+        title: title,
+        summary: summary,
+        content: content,
+        image: newPath,
+        author: decoded.id,
+      });
+      res.json(postDoc);
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json(`Error: ${error}`);
+  }
+});
+
+app.get('/posts', async (req, res) => {
+  try {
+    const posts = await Post.find()
+      .populate('author', 'username')
+      .sort({ createdAt: -1 })
+      .limit(20);
+    res.json(posts);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json(`Error: ${error}`);
+  }
 });

@@ -1,21 +1,20 @@
-export default function Post() {
+import { formatISO9075 } from 'date-fns';
+
+export default function Post({ title, summary, image, createdAt, author }) {
   return (
     <div className='post'>
       <div className='post-img'>
-        <img src='https://via.placeholder.com/800x400' alt='Banner' />
+        <img src={image} alt='Blog banner' />
       </div>
       <div className='post-info'>
-        <h2>Place holder title, changes coming later this year</h2>
+        <h2>{title}</h2>
         <p className='post-info'>
-          <a className='post-author' href='#'>
-            Peter Z.
+          <a className='post-author' href=''>
+            {author}
           </a>
-          <time>2024-02-14 11:40</time>
+          <time>{formatISO9075(new Date(createdAt))}</time>
         </p>
-        <p className='post-summary'>
-          Lorem impsum alpha omega itero aosmawnewr qnqwonqwoern oqiewr noqewnr
-          qwerboqweo nqoeiwmr qiuqwmornon ewqerq
-        </p>
+        <p className='post-summary'>{summary}</p>
       </div>
     </div>
   );
