@@ -37,7 +37,7 @@ const startServer = async () => {
       console.log(`Server is running on port: ${PORT}`);
     });
   } catch (error) {
-    console.error(`Error: ${error.message}`);
+    console.error('Error starting server: ', error);
   }
 };
 
@@ -47,12 +47,19 @@ startServer();
 app.post('/register', async (req, res) => {
   const { username, password } = req.body;
   try {
+    if (!username || !password) {
+      return res.status(400).json('Username and password are required');
+    }
+    const user = await User.findOne({ username: username });
+    if (user) {
+      return res.status(400).json('Username already exists');
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
     await User.create({ username: username, password: hashedPassword });
     res.json(`User ${username} registered successfully!`);
   } catch (error) {
-    console.log(error);
-    res.status(400).json(`Error: ${error}`);
+    console.error('Registration error: ', error);
+    res.status(400).json({ error: 'Registration failed' });
   }
 });
 
@@ -60,25 +67,31 @@ app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   try {
     console.log('attempting login...');
+    if (!username || !password) {
+      return res.status(400).json('Username and password are required');
+    }
     const user = await User.findOne({ username: username });
     if (!user) {
-      res.status(400).json('User not found');
-      return;
+      return res.status(400).json('User not found');
     } else if (await bcrypt.compare(password, user.password)) {
       console.log('Password match');
       jwt.sign(
         { username, id: user._id },
         process.env.JWT_SECRET,
         (err, token) => {
-          if (err) res.status(400).json(`Error: ${err}`);
+          if (err) {
+            console.error('JWT Error: ', err);
+            res.status(400).json(`Error: ${err}`);
+            res.status(400).json({ error: 'JWT error' });
+          }
           res.cookie('token', token).json({ username, id: user._id });
         }
       );
     } else {
-      res.status(400).json('Invalid password');
+      return res.status(400).json({ error: 'Invalid password' });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(400).json(`Error: ${error}`);
   }
 });
@@ -86,11 +99,13 @@ app.post('/login', async (req, res) => {
 app.get('/profile', async (req, res) => {
   const { token } = req.cookies;
   if (!token) {
-    res.status(401).json('Not authorized');
-    return;
+    return res.status(401).json('Not authorized');
   }
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) res.status(400).json(`Error: ${err}`);
+    if (err) {
+      console.error('JWT Verification Error: ', err);
+      res.status(400).json({ error: 'Token verification error' });
+    }
     res.json(decoded);
   });
 });
@@ -117,7 +132,10 @@ app.post('/posts', uploadMidware.single('image'), async (req, res) => {
 
     const { token } = req.cookies;
     jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-      if (err) res.status(400).json(`Error: ${err}`);
+      if (err) {
+        console.error('JWT Verification Error: ', err);
+        res.status(400).json({ error: 'Token verification error' });
+      }
       // create post, save to db
       const postDoc = await Post.create({
         title: title,
@@ -129,8 +147,8 @@ app.post('/posts', uploadMidware.single('image'), async (req, res) => {
       res.json(postDoc);
     });
   } catch (error) {
-    console.error(error);
-    res.status(400).json(`Error: ${error}`);
+    console.error('Post creation error: ', error);
+    res.status(400).json({ error: 'Post creation failed' });
   }
 });
 
@@ -142,7 +160,7 @@ app.get('/posts', async (req, res) => {
       .limit(20);
     res.json(posts);
   } catch (error) {
-    console.error(error);
-    res.status(400).json(`Error: ${error}`);
+    console.error('Fetching posts error: ', error);
+    res.status(400).json({ error: 'Fetching posts failed' });
   }
 });

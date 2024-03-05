@@ -14,8 +14,8 @@ export default function RegisterPage() {
       body: JSON.stringify({ username, password }),
     });
     if (!res.ok) {
-      console.error('Error:', res);
-      alert('Error registering user');
+      const errRes = await res.json();
+      alert('Error registering user: ' + JSON.stringify(errRes));
       return;
     }
     alert(await res.json());
