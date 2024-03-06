@@ -1,12 +1,12 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { UserContext } from '../components/UserContext.js';
+import { useUser } from '../components/UserContext.js';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [redirect, setRedirect] = useState(false);
-  const { setUser } = useContext(UserContext);
+  const { login } = useUser();
 
   async function handleLogin(e) {
     e.preventDefault();
@@ -20,7 +20,8 @@ export default function LoginPage() {
     });
     if (res.ok) {
       const data = await res.json();
-      setUser(data);
+      console.log('data:', data);
+      login(data.user);
       setRedirect(true);
     } else {
       alert('Inccorect username or password');

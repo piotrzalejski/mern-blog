@@ -75,43 +75,45 @@ app.post('/login', async (req, res) => {
       return res.status(400).json('User not found');
     } else if (await bcrypt.compare(password, user.password)) {
       console.log('Password match');
-      jwt.sign(
+      const token = jwt.sign(
         { username, id: user._id },
         process.env.JWT_SECRET,
-        (err, token) => {
-          if (err) {
-            console.error('JWT Error: ', err);
-            res.status(400).json(`Error: ${err}`);
-            res.status(400).json({ error: 'JWT error' });
-          }
-          res.cookie('token', token).json({ username, id: user._id });
-        }
+        { expiresIn: '1h' }
       );
+      res
+        .cookie('sessionCookie', token, { httpOnly: true, secure: false })
+        .json({ message: 'Login successful', user: { username: username } });
+      console.log('Login successful. JWT Signed');
     } else {
       return res.status(400).json({ error: 'Invalid password' });
     }
   } catch (error) {
-    console.error(error);
-    res.status(400).json(`Error: ${error}`);
+    console.log(error);
+    res.status(400).json({ errror: 'Internal server error' });
   }
 });
 
 app.get('/profile', async (req, res) => {
-  const { token } = req.cookies;
-  if (!token) {
-    return res.status(401).json('Not authorized');
+  const { sessionCookie } = req.cookies;
+  if (!sessionCookie) {
+    console.log('No session token found');
+    return res.status(401).json('Unauthorized. No session token found');
   }
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+  jwt.verify(sessionCookie, process.env.JWT_SECRET, (err, decoded) => {
     if (err) {
       console.error('JWT Verification Error: ', err);
-      res.status(400).json({ error: 'Token verification error' });
+      res.status(401).json({ error: 'Token verification failed' });
     }
-    res.json(decoded);
+    console.log('decoded: ', decoded);
+    res.json({
+      message: 'Authorized',
+      user: { username: decoded.username, id: decoded.id },
+    });
   });
 });
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('token').json('Logged out');
+  res.clearCookie('sessionCookie').json('Logged out');
 });
 
 app.post('/posts', uploadMidware.single('image'), async (req, res) => {
@@ -130,8 +132,8 @@ app.post('/posts', uploadMidware.single('image'), async (req, res) => {
     const newPath = oldPath + '.' + ext;
     fs.renameSync(oldPath, newPath);
 
-    const { token } = req.cookies;
-    jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+    const { sessionCookie } = req.cookies;
+    jwt.verify(sessionCookie, process.env.JWT_SECRET, async (err, decoded) => {
       if (err) {
         console.error('JWT Verification Error: ', err);
         res.status(400).json({ error: 'Token verification error' });
@@ -155,9 +157,10 @@ app.post('/posts', uploadMidware.single('image'), async (req, res) => {
 app.get('/posts', async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate('author', 'username')
+      .populate('author', '-_id username')
       .sort({ createdAt: -1 })
-      .limit(20);
+      .limit(20)
+      .select('-__v');
     res.json(posts);
   } catch (error) {
     console.error('Fetching posts error: ', error);

@@ -12,6 +12,7 @@
     "@tiptap/react": "^2.2.3",
     "@tiptap/starter-kit": "^2.2.3",
     "date-fns": "^3.3.1",
+    "jwt-decode": "^4.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.0",

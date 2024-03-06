@@ -1,28 +1,29 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { UserContext } from './UserContext.js';
+import { useUser } from './UserContext.js';
 
 export default function Header() {
-  const { user, setUser } = useContext(UserContext);
+  const { user, login, logout } = useUser();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    //console.log('fetching data');
     async function fetchData() {
       try {
         const res = await fetch(`${process.env.REACT_APP_API_URL}/profile`, {
           credentials: 'include',
         });
-        if (!res.ok) {
-          setUser(null);
-          throw new Error('Not logged in');
+        if (res.ok) {
+          const data = await res.json();
+          login(data.user);
+        } else if (res.status === 401) {
+          const data = await res.json();
+          console.error(data);
+          logout();
+        } else {
+          throw new Error('Failed to fetch profile data');
         }
-        const data = await res.json();
-        console.log(data);
-        setUser(data.username);
       } catch (error) {
         console.error('Error fetching profile:', error);
-        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -34,19 +35,19 @@ export default function Header() {
     return <header className='loading'>Loading...</header>;
   }
 
-  async function logout() {
+  async function handleLogout() {
     const res = await fetch(`${process.env.REACT_APP_API_URL}/logout`, {
       method: 'POST',
       credentials: 'include',
     });
     if (res.ok) {
-      setUser(null);
+      logout();
     } else {
       console.error('Error logging out');
     }
   }
 
-  const isLoggedIn = user !== null && user !== undefined;
+  const isLoggedIn = !!user && Object.keys(user).length !== 0;
 
   return (
     <header>
@@ -57,7 +58,7 @@ export default function Header() {
         {isLoggedIn && (
           <>
             <Link to='/create'>New Post</Link>
-            <a onClick={logout}>Logout</a>
+            <a onClick={handleLogout}>Logout</a>
           </>
         )}
         {!isLoggedIn && (

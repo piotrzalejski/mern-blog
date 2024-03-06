@@ -8,7 +8,7 @@ export default function HomePage() {
     async function fetchPosts() {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/posts`);
       const posts = await res.json();
-      console.log('useEffect homepage: ', posts);
+      // console.log('useEffect homepage: ', posts);
       setPosts(posts);
     }
     fetchPosts();
@@ -21,7 +21,7 @@ export default function HomePage() {
           return (
             <Post
               key={post._id}
-              _id={post._id}
+              id={post._id}
               title={post.title}
               summary={post.summary}
               createdAt={post.createdAt}
