@@ -104,7 +104,7 @@ app.get('/profile', async (req, res) => {
       console.error('JWT Verification Error: ', err);
       res.status(401).json({ error: 'Token verification failed' });
     }
-    console.log('decoded: ', decoded);
+    // console.log('decoded: ', decoded);
     res.json({
       message: 'Authorized',
       user: { username: decoded.username, id: decoded.id },
@@ -165,5 +165,19 @@ app.get('/posts', async (req, res) => {
   } catch (error) {
     console.error('Fetching posts error: ', error);
     res.status(400).json({ error: 'Fetching posts failed' });
+  }
+});
+
+app.get('/post/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const post = await Post.findById(id).populate('author', [
+      'username',
+      '-_id',
+    ]);
+    res.json(post);
+  } catch (error) {
+    console.error('Fetching post error: ', error);
+    res.status(400).json({ error: 'Fetching post failed' });
   }
 });
