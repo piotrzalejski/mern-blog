@@ -116,7 +116,7 @@ app.post('/logout', (req, res) => {
   res.clearCookie('sessionCookie').json('Logged out');
 });
 
-app.post('/posts', uploadMidware.single('image'), async (req, res) => {
+app.post('/post', uploadMidware.single('image'), async (req, res) => {
   const { title, summary, content } = req.body;
   try {
     if (!title || !summary || !content) {
@@ -154,6 +154,54 @@ app.post('/posts', uploadMidware.single('image'), async (req, res) => {
   }
 });
 
+app.put('/post', uploadMidware.single('image'), async (req, res) => {
+  const newPath = null;
+  if (req.file) {
+    const { originalname, path: oldPath } = req.file;
+    const ext = originalname.split('.').pop();
+    newPath = oldPath + '.' + ext;
+    fs.renameSync(oldPath, newPath);
+  }
+
+  const { sessionCookie } = req.cookies;
+  jwt.verify(sessionCookie, process.env.JWT_SECRET, async (err, decoded) => {
+    if (err) {
+      console.error('JWT Verification Error: ', err);
+      res.status(400).json({ error: 'Token verification error' });
+    }
+
+    const { id, title, summary, content } = req.body;
+    try {
+      const postDoc = await Post.findById(id);
+
+      if (!postDoc) {
+        return res.status(404).json({ error: 'Post not found' });
+      }
+
+      if (JSON.stringify(postDoc.author) !== JSON.stringify(decoded.id)) {
+        return res.status(403).json({ error: 'Unauthorized' });
+      }
+
+      // Update the post document
+      const updatedPost = await Post.findByIdAndUpdate(
+        id,
+        {
+          title,
+          summary,
+          content,
+          image: newPath ? newPath : postDoc.image,
+        },
+        { new: true }
+      );
+
+      res.json(updatedPost);
+    } catch (error) {
+      console.error('Error updating post:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+});
+
 app.get('/posts', async (req, res) => {
   try {
     const posts = await Post.find()
@@ -171,10 +219,7 @@ app.get('/posts', async (req, res) => {
 app.get('/post/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const post = await Post.findById(id).populate('author', [
-      'username',
-      '-_id',
-    ]);
+    const post = await Post.findById(id).populate('author', ['username']);
     res.json(post);
   } catch (error) {
     console.error('Fetching post error: ', error);

@@ -1,37 +1,51 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TipTapEditor from '../components/EditorProvider.js';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 
-export default function CreatePostPage() {
+export default function EditPost() {
+  const params = useParams();
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
   const [content, setContent] = useState('');
   const [file, setFile] = useState('');
   const [redirect, setRedirect] = useState(false);
 
+  useEffect(() => {
+    async function getPost() {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/post/${params.id}`
+      );
+      const data = await res.json();
+      console.log(data);
+      setTitle(data.title);
+      setSummary(data.summary);
+      setContent(data.content);
+    }
+    getPost();
+  }, [params.id]);
+
   function handleUpdate({ editor }) {
     // get HTML content of the editor
     setContent(editor.getHTML());
   }
 
-  async function handleSubmit(event) {
+  async function updatePost(event) {
     event.preventDefault();
     const formData = new FormData();
     formData.set('title', title);
     formData.set('summary', summary);
     formData.set('content', content);
-    // for sake of simplicity, we are using only one image
-    formData.set('image', file[0]);
-    // for (const [key, value] of formData.entries()) {
-    //   console.log(key, value);
-    // }
+    formData.set('id', params.id);
+    if (file?.length > 0) {
+      formData.set('image', file?.[0]);
+    }
     const res = await fetch(`${process.env.REACT_APP_API_URL}/post`, {
-      method: 'POST',
+      method: 'PUT',
       body: formData,
       credentials: 'include',
     });
     if (res.ok) {
-      alert('Post created successfully');
+      alert('Post updated successfully');
       setRedirect(true);
     } else {
       alert('Error creating post');
@@ -39,12 +53,13 @@ export default function CreatePostPage() {
   }
 
   if (redirect) {
-    return <Navigate to='/' />;
+    return <Navigate to={`/post/${params.id}`} />;
   }
+
   return (
     <div>
-      <h1>Create New Post</h1>
-      <form onSubmit={handleSubmit}>
+      <h1>Edit Post</h1>
+      <form onSubmit={updatePost}>
         <input
           type='text'
           id='title'
@@ -66,11 +81,12 @@ export default function CreatePostPage() {
           id='image'
           accept='image/*'
           onChange={(e) => setFile(e.target.files)}
-          required
         />
-        <TipTapEditor onUpdate={handleUpdate} />
+        {content && (
+          <TipTapEditor onUpdate={handleUpdate} initContent={content} />
+        )}
         <button type='submit' className='createbtn'>
-          Create Post
+          Update Post
         </button>
       </form>
     </div>

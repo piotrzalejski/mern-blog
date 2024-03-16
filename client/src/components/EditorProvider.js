@@ -12,12 +12,13 @@ const extensions = [
   }),
 ];
 
-export default function TipTapEditor({ onUpdate }) {
+export default function TipTapEditor({ onUpdate, initContent = '' }) {
   return (
     <EditorProvider
       extensions={extensions}
       slotBefore={<MenuBar />}
       onUpdate={onUpdate}
+      content={initContent}
     ></EditorProvider>
   );
 }
