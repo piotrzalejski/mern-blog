@@ -12,16 +12,12 @@ export default function Header() {
         const res = await fetch(`${process.env.REACT_APP_API_URL}/profile`, {
           credentials: 'include',
         });
-        if (res.ok) {
-          const data = await res.json();
-          login(data.user);
-        } else if (res.status === 401) {
-          const data = await res.json();
-          console.error(data);
+        if (!res.ok) {
           logout();
-        } else {
           throw new Error('Failed to fetch profile data');
         }
+        const data = await res.json();
+        login(data.user);
       } catch (error) {
         console.error('Error fetching profile:', error);
       } finally {
