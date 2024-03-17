@@ -11,6 +11,7 @@ import multer from 'multer';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import refreshAccessToken from './utils/middleware.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -43,7 +44,7 @@ const startServer = async () => {
 
 startServer();
 
-// Routes
+// Routes don't require authentication
 app.post('/register', async (req, res) => {
   const { username, password } = req.body;
   try {
@@ -78,11 +79,14 @@ app.post('/login', async (req, res) => {
       const token = jwt.sign(
         { username, id: user._id },
         process.env.JWT_SECRET,
-        { expiresIn: '1h' }
+        { expiresIn: '5m' }
       );
       res
         .cookie('sessionCookie', token, { httpOnly: true, secure: false })
-        .json({ message: 'Login successful', user: { username: username } });
+        .json({
+          message: 'Login successful',
+          user: { username: username, id: user._id },
+        });
       console.log('Login successful. JWT Signed');
     } else {
       return res.status(400).json({ error: 'Invalid password' });
@@ -93,113 +97,8 @@ app.post('/login', async (req, res) => {
   }
 });
 
-app.get('/profile', async (req, res) => {
-  const { sessionCookie } = req.cookies;
-  if (!sessionCookie) {
-    console.log('No session token found');
-    return res.status(401).json('Unauthorized. No session token found');
-  }
-  jwt.verify(sessionCookie, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) {
-      console.error('JWT Verification Error: ', err);
-      res.status(401).json({ error: 'Token verification failed' });
-    }
-    // console.log('decoded: ', decoded);
-    res.json({
-      message: 'Authorized',
-      user: { username: decoded.username, id: decoded.id },
-    });
-  });
-});
-
 app.post('/logout', (req, res) => {
   res.clearCookie('sessionCookie').json('Logged out');
-});
-
-app.post('/post', uploadMidware.single('image'), async (req, res) => {
-  const { title, summary, content } = req.body;
-  try {
-    if (!title || !summary || !content) {
-      throw new Error('Title, summary, and content are required');
-    }
-    if (!req.file) {
-      throw new Error('Image is required');
-    }
-
-    // saving image with original extension into uploads folder
-    const { originalname, path: oldPath } = req.file;
-    const ext = originalname.split('.').pop();
-    const newPath = oldPath + '.' + ext;
-    fs.renameSync(oldPath, newPath);
-
-    const { sessionCookie } = req.cookies;
-    jwt.verify(sessionCookie, process.env.JWT_SECRET, async (err, decoded) => {
-      if (err) {
-        console.error('JWT Verification Error: ', err);
-        res.status(400).json({ error: 'Token verification error' });
-      }
-      // create post, save to db
-      const postDoc = await Post.create({
-        title: title,
-        summary: summary,
-        content: content,
-        image: newPath,
-        author: decoded.id,
-      });
-      res.json(postDoc);
-    });
-  } catch (error) {
-    console.error('Post creation error: ', error);
-    res.status(400).json({ error: 'Post creation failed' });
-  }
-});
-
-app.put('/post', uploadMidware.single('image'), async (req, res) => {
-  const newPath = null;
-  if (req.file) {
-    const { originalname, path: oldPath } = req.file;
-    const ext = originalname.split('.').pop();
-    newPath = oldPath + '.' + ext;
-    fs.renameSync(oldPath, newPath);
-  }
-
-  const { sessionCookie } = req.cookies;
-  jwt.verify(sessionCookie, process.env.JWT_SECRET, async (err, decoded) => {
-    if (err) {
-      console.error('JWT Verification Error: ', err);
-      res.status(400).json({ error: 'Token verification error' });
-    }
-
-    const { id, title, summary, content } = req.body;
-    try {
-      const postDoc = await Post.findById(id);
-
-      if (!postDoc) {
-        return res.status(404).json({ error: 'Post not found' });
-      }
-
-      if (JSON.stringify(postDoc.author) !== JSON.stringify(decoded.id)) {
-        return res.status(403).json({ error: 'Unauthorized' });
-      }
-
-      // Update the post document
-      const updatedPost = await Post.findByIdAndUpdate(
-        id,
-        {
-          title,
-          summary,
-          content,
-          image: newPath ? newPath : postDoc.image,
-        },
-        { new: true }
-      );
-
-      res.json(updatedPost);
-    } catch (error) {
-      console.error('Error updating post:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  });
 });
 
 app.get('/posts', async (req, res) => {
@@ -224,5 +123,124 @@ app.get('/post/:id', async (req, res) => {
   } catch (error) {
     console.error('Fetching post error: ', error);
     res.status(400).json({ error: 'Fetching post failed' });
+  }
+});
+
+// Routes requiring authentication
+app.use(refreshAccessToken);
+app.get('/profile', refreshAccessToken, async (req, res) => {
+  const { sessionCookie } = req.cookies;
+  if (!sessionCookie) {
+    console.log('No session token found');
+    return res.status(401).json('Unauthorized. No session token found');
+  }
+  jwt.verify(sessionCookie, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      console.error('JWT Verification Error: ', err);
+      return res.status(401).json({ error: 'Token verification failed' });
+    }
+    // console.log('decoded: ', decoded);
+    res.json({
+      message: 'Authorized',
+      user: { username: decoded.username, id: decoded.id },
+    });
+  });
+});
+
+app.post(
+  '/post',
+  uploadMidware.single('image'),
+  refreshAccessToken,
+  async (req, res) => {
+    const { title, summary, content } = req.body;
+    try {
+      if (!title || !summary || !content) {
+        throw new Error('Title, summary, and content are required');
+      }
+      if (!req.file) {
+        throw new Error('Image is required');
+      }
+
+      // saving image with original extension into uploads folder
+      const { originalname, path: oldPath } = req.file;
+      const ext = originalname.split('.').pop();
+      const newPath = oldPath + '.' + ext;
+      fs.renameSync(oldPath, newPath);
+
+      const { sessionCookie } = req.cookies;
+      jwt.verify(
+        sessionCookie,
+        process.env.JWT_SECRET,
+        async (err, decoded) => {
+          if (err) {
+            console.error('JWT Verification Error: ', err);
+            res.status(400).json({ error: 'Token verification error' });
+          }
+          // create post, save to db
+          const postDoc = await Post.create({
+            title: title,
+            summary: summary,
+            content: content,
+            image: newPath,
+            author: decoded.id,
+          });
+          res.json(postDoc);
+        }
+      );
+    } catch (error) {
+      console.error('Post creation error: ', error);
+      res.status(400).json({ error: 'Post creation failed' });
+    }
+  }
+);
+
+app.put('/post', uploadMidware.single('image'), async (req, res) => {
+  let newPath = null;
+
+  if (req.file) {
+    const { originalname, path: oldPath } = req.file;
+    const ext = originalname.split('.').pop();
+    newPath = oldPath + '.' + ext;
+    fs.renameSync(oldPath, newPath);
+  }
+
+  const { sessionCookie } = req.cookies;
+  console.log('session cookie: ', sessionCookie);
+
+  const decoded = req.decoded;
+  console.log('decoded: ', decoded);
+
+  const { id, title, summary, content } = await req.body;
+  console.log('put data: ', { id, title, summary, content });
+
+  const postDoc = await Post.findById(id);
+  if (!postDoc) {
+    return res.status(404).json({ error: 'Post not found' });
+  }
+  console.log('postDoc author: ', JSON.stringify(postDoc.author));
+  console.log('decoded id: ', JSON.stringify(decoded.id));
+  if (JSON.stringify(postDoc.author) !== JSON.stringify(decoded.id)) {
+    return res.status(403).json({ error: 'Unauthorized' });
+  }
+  console.log('no errors so far');
+
+  try {
+    // Update the post document
+    const updatedDoc = await Post.findOneAndUpdate(
+      { _id: id },
+      {
+        title,
+        summary,
+        content,
+        image: newPath ? newPath : postDoc.image,
+      },
+      { new: true }
+    );
+
+    console.log('updatedPostDoc: ', updatedDoc);
+    return res.json(updatedDoc); // Response sent here
+  } catch (error) {
+    console.error('Error updating post:', error);
+    return error;
   }
 });
