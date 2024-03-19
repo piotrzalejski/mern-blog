@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-export default function refreshAccessToken(req, res, next) {
+export function refreshAccessToken(req, res, next) {
   const publicRoutes = ['/register', '/login', '/posts'];
   if (publicRoutes.includes(req.path)) {
     return next();
@@ -48,10 +48,18 @@ export default function refreshAccessToken(req, res, next) {
       );
       res.cookie('sessionCookie', newToken, { httpOnly: true, secure: false });
       console.log('Token refreshed');
-      return res(200).json({ message: 'Token refreshed' });
+      return res.status(200).json({ message: 'Token refreshed' });
     } else {
       console.error('JWT Verification Error:', error);
       return res.status(500).json({ error: 'Token verification failed' });
     }
   }
+}
+
+// TODO:
+export function updateLastActivity(req, res, next) {
+  //logic here
+  // 1. check if user is logged in
+  // 2. if logged in, update the last activity field in the user session document
+  return next();
 }

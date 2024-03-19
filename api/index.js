@@ -11,7 +11,7 @@ import multer from 'multer';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import refreshAccessToken from './utils/middleware.js';
+import { refreshAccessToken } from './utils/middleware.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -217,12 +217,10 @@ app.put('/post', uploadMidware.single('image'), async (req, res) => {
   if (!postDoc) {
     return res.status(404).json({ error: 'Post not found' });
   }
-  console.log('postDoc author: ', JSON.stringify(postDoc.author));
-  console.log('decoded id: ', JSON.stringify(decoded.id));
+
   if (JSON.stringify(postDoc.author) !== JSON.stringify(decoded.id)) {
     return res.status(403).json({ error: 'Unauthorized' });
   }
-  console.log('no errors so far');
 
   try {
     // Update the post document
