@@ -30,7 +30,6 @@ export default function PostPage() {
         {user.id === postInfo.author._id && (
           <div>
             <Link to={`/edit/${postInfo._id}`}>Edit</Link>
-            <Link to={`/delete/${postInfo._id}`}>Delete</Link>
           </div>
         )}
         <div className='post-image'>
