@@ -31,7 +31,6 @@ export function refreshAccessToken(req, res, next) {
     return res.status(500).json({ error: 'Token decoding failed' });
   }
 
-  console.log('shouldnt be heare if token not expired');
   // Verify the JWT token using the extracted user information
   try {
     jwt.verify(currToken, process.env.JWT_SECRET);
@@ -41,6 +40,7 @@ export function refreshAccessToken(req, res, next) {
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       // If expired, generate a new token and return it
+      // TODO: If token has been expired for more than 15min, redirect to login
       const newToken = jwt.sign(
         { username: user.username, id: user.id },
         process.env.JWT_SECRET,
