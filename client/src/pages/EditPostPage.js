@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import TipTapEditor from '../components/EditorProvider.js';
 import { Navigate, useParams } from 'react-router-dom';
+import Metadata from '../components/Metadata.js';
 
 export default function EditPost() {
   const params = useParams();
@@ -57,38 +58,41 @@ export default function EditPost() {
   }
 
   return (
-    <div>
-      <h1>Edit Post</h1>
-      <form onSubmit={updatePost}>
-        <input
-          type='text'
-          id='title'
-          placeholder='Title'
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        <input
-          type='text'
-          id='summary'
-          placeholder='Summary'
-          value={summary}
-          onChange={(e) => setSummary(e.target.value)}
-          required
-        />
-        <input
-          type='file'
-          id='image'
-          accept='image/*'
-          onChange={(e) => setFile(e.target.files)}
-        />
-        {content && (
-          <TipTapEditor onUpdate={handleUpdate} initContent={content} />
-        )}
-        <button type='submit' className='createbtn'>
-          Update Post
-        </button>
-      </form>
-    </div>
+    <>
+      <Metadata title={`Edit ${title}`} description='Edit your post' />
+      <div>
+        <h1>Edit Post</h1>
+        <form onSubmit={updatePost}>
+          <input
+            type='text'
+            id='title'
+            placeholder='Title'
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+          <input
+            type='text'
+            id='summary'
+            placeholder='Summary'
+            value={summary}
+            onChange={(e) => setSummary(e.target.value)}
+            required
+          />
+          <input
+            type='file'
+            id='image'
+            accept='image/*'
+            onChange={(e) => setFile(e.target.files)}
+          />
+          {content && (
+            <TipTapEditor onUpdate={handleUpdate} initContent={content} />
+          )}
+          <button type='submit' className='createbtn'>
+            Update Post
+          </button>
+        </form>
+      </div>
+    </>
   );
 }

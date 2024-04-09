@@ -3,24 +3,20 @@ import { Link } from 'react-router-dom';
 
 export default function Post({ id, title, summary, image, createdAt, author }) {
   return (
-    <div className='post'>
-      <div className='post-img'>
-        <Link to={`/post/${id}`}>
+    <Link to={`/post/${id}`}>
+      <header className='post-header'>
+        <time>{format(new Date(createdAt), 'MMM dd, yyyy')}</time>
+        <p className='post-author'>{author}</p>
+      </header>
+      <div className='post'>
+        <div className='post-img'>
           <img src={image} alt='Blog banner' />
-        </Link>
+        </div>
+        <div className='post-info'>
+          <h2 className='post-title'>{title}</h2>
+          <p className='post-summary'>{summary}</p>
+        </div>
       </div>
-      <div className='post-info'>
-        <Link to={`/post/${id}`}>
-          <h2>{title}</h2>
-        </Link>
-        <p className='post-info'>
-          <a className='post-author' href=''>
-            {author}
-          </a>
-          <time>{format(new Date(createdAt), 'MMM dd, yyyy HH:mm')}</time>
-        </p>
-        <p className='post-summary'>{summary}</p>
-      </div>
-    </div>
+    </Link>
   );
 }

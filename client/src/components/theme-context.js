@@ -7,7 +7,7 @@ export const ThemeContextProvider = ({ children }) => {
 
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === 'dark' ? 'light' : 'dark'));
-    localStorage.setItem('theme', theme);
+    localStorage.setItem('theme', JSON.stringify(theme));
   };
 
   useEffect(() => {

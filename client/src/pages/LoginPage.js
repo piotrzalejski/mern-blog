@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useUser } from '../components/UserContext.js';
+import Layout from '../Layout.js';
+import Metadata from '../components/Metadata.js';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -32,25 +34,30 @@ export default function LoginPage() {
     return <Navigate to='/' />;
   }
   return (
-    <form className='login' onSubmit={handleLogin}>
-      <h1>Login</h1>
-      <input
-        type='text'
-        id='username'
-        placeholder='username'
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type='password'
-        id='password'
-        placeholder='password'
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button className='submitbtn' type='submit'>
-        Login
-      </button>
-    </form>
+    <>
+      <Metadata title={'Login'} description={'Please login to continue'} />
+      <form className='login' onSubmit={handleLogin}>
+        <h1>Login</h1>
+        <input
+          className='lr_input'
+          type='text'
+          id='username'
+          placeholder='username'
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <input
+          className='lr_input'
+          type='password'
+          id='password'
+          placeholder='password'
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button className='submitbtn' type='submit'>
+          Login
+        </button>
+      </form>
+    </>
   );
 }

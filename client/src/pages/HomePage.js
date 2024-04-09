@@ -15,16 +15,16 @@ export default function HomePage() {
     fetchPosts();
   }, []);
   return (
-    <div>
+    <>
       <Metadata
-        title='Piotr Zalejski - Homepage'
-        description="Piotr's Homepage"
+        title='My Blog - Homepage'
+        description='Welcome to my homepage'
       />
-      <>
-        {posts.length > 0 &&
-          posts.map((post) => {
-            const author = post.author ? post.author.username : 'Unknown';
-            return (
+      {posts.length > 0 &&
+        posts.map((post) => {
+          const author = post.author ? post.author.username : 'Unknown';
+          return (
+            <article className='post-article'>
               <Post
                 key={post._id}
                 id={post._id}
@@ -34,10 +34,10 @@ export default function HomePage() {
                 author={author}
                 image={`${process.env.REACT_APP_API_URL}/${post.image}`}
               />
-            );
-          })}
-        {posts.length === 0 && <p>No posts found</p>}
-      </>
-    </div>
+            </article>
+          );
+        })}
+      {posts.length === 0 && <p>No posts found</p>}
+    </>
   );
 }

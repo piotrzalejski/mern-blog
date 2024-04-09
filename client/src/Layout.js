@@ -1,12 +1,16 @@
 import Header from './components/Header.js';
 import { Outlet } from 'react-router-dom';
+import Metadata from './components/Metadata.js';
 
-export default function Layout() {
+export default function Layout({ title, description }) {
   return (
-    <main>
+    <div className='layout'>
+      <Metadata title={title} description={description} />
       <Header />
-      {/* outlet serves a placeholder element where matched route component is inserted */}
-      <Outlet />
-    </main>
+      <main>
+        {/* outlet serves a placeholder element where matched route component is inserted */}
+        <Outlet />
+      </main>
+    </div>
   );
 }

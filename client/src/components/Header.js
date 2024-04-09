@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useUser } from './UserContext.js';
 import ThemeSwitch from './theme-switch.js';
 
 export default function Header() {
   const { user, login, logout } = useUser();
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const isLoginPage = location.pathname === '/login';
+  const isRegisterPage = location.pathname === '/register';
 
   useEffect(() => {
     async function fetchData() {
@@ -64,14 +67,14 @@ export default function Header() {
             <a onClick={handleLogout}>Logout</a>
           </>
         )}
-        {!isLoggedIn && (
+        {!isLoggedIn && !isLoginPage && !isRegisterPage && (
           <>
             <Link to='/login'>Login</Link>
             <Link to='/register'>Register</Link>
           </>
         )}
+        <ThemeSwitch />
       </nav>
-      <ThemeSwitch />
     </header>
   );
 }

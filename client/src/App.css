@@ -1,7 +1,8 @@
 :root,
 * {
-  --text-color: #333;
+  --text-color: #fff;
   box-sizing: border-box;
+  background-color: rgba(15, 23, 42, 1);
 }
 
 img {
@@ -11,15 +12,20 @@ img {
 a {
   text-decoration: none;
 }
-
+.layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
 /* MAIN */
 main {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f5f5f5;
+  /* background-color: #f5f5f5; */
+  background-color: rgba(15, 23, 42, 1);
   font-family: 'Roboto', sans-serif;
-  color: #333;
+  color: var(--text-color);
   max-width: 700px;
   margin: 0 auto;
   padding: 1rem;
@@ -27,11 +33,16 @@ main {
 
 /* HEADER */
 header {
+  max-width: 700px;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   margin-top: 1.3rem;
   margin-bottom: 3.2rem;
+  margin-left: auto;
+  margin-right: auto;
   align-items: center;
+  border: none;
 }
 
 header a {
@@ -49,41 +60,71 @@ header nav {
   gap: 1rem;
 }
 
-/* POST */
-div.post {
-  display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
-  gap: 1.4rem;
-  margin-bottom: 1.8rem;
+/* ########################################################################## */
+/* ############################      POST      ############################## */
+/* ########################################################################## */
+time,
+.post-author,
+.post,
+.post-info,
+.post-summary,
+.post-title {
+  background: #25272f;
 }
 
-div.post div.post-info h2 {
-  margin: 0;
-  font-size: 1.8rem;
+.post-article {
+  border: 1px solid #bfc1c9;
+  background-color: #25272f;
+  padding: 1rem;
+  transition: transform 0.3s ease-out;
 }
 
-div.post div.post-info a {
+.post-article:hover {
+  transform: scale(1.03);
+}
+
+.post-link {
+  display: block;
   text-decoration: none;
   color: inherit;
+  outline: none;
 }
 
-div.post p.post-info {
-  margin: 0.9rem 0;
-  color: #888;
-  font-size: 0.7rem;
-  font-weight: bold;
-  display: flex;
-  gap: 0.8rem;
+.post-header {
+  color: #bfc1c9;
+  margin: 0;
+  background: #25272f;
 }
 
-div.post p.post-info a.post-author {
-  color: #333;
+time {
+  font-family: 'Courier New', Courier, monospace;
+  background: #25272f;
+}
+.post {
+  margin-left: -1rem;
+  margin-right: -1rem;
 }
 
-div.post p.post-summary {
-  margin: 0.8rem 0;
-  line-height: 1.4rem;
+.post-img {
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
+
+.post-info {
+  display: grid;
+  gap: 1rem;
+}
+
+.post-title {
+  font-size: 1.5rem;
+}
+
+.post-summary {
+  color: #bfc1c9;
+}
+
+/* ########################################################################## */
 
 /* LOGIN */
 form.login,
@@ -105,15 +146,36 @@ input {
 .submitbtn,
 .registerbtn {
   width: 100%;
-  background-color: #555;
+  background-color: #27344b;
   border: none;
   color: #fff;
   border-radius: 0.3rem;
   padding: 0.5rem;
 }
 
+.submitbtn:hover,
+.registerbtn:hover {
+  background-color: #334155;
+}
+
 form h1 {
   text-align: center;
+}
+
+.lr_input {
+  background-color: #1e293bbf;
+  border: none;
+  color: #a1a1aa;
+}
+
+.lr_input:focus {
+  outline: none;
+  border: 1px solid gray;
+}
+
+.lr_input:hover,
+.lr_input:active {
+  border: 1px solid gray;
 }
 
 /* Loading Header */
@@ -121,4 +183,18 @@ form h1 {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.theme-toggle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  background: none;
+}
+
+.theme-toggle img {
+  width: 20px;
+  height: 20px;
+  fill: #0ea5e9;
 }
