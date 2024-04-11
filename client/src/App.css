@@ -100,19 +100,21 @@ time {
   font-family: 'Courier New', Courier, monospace;
   background: #25272f;
 }
-.post {
+.post-img {
   margin-left: -1rem;
   margin-right: -1rem;
+  max-height: 300px;
+  overflow: hidden;
 }
 
-.post-img {
+.post--imgage {
   max-width: 100%;
   height: auto;
-  display: block;
 }
 
 .post-info {
   display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
 
