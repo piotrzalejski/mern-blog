@@ -20,24 +20,28 @@ export default function HomePage() {
         title='My Blog - Homepage'
         description='Welcome to my homepage'
       />
-      {posts.length > 0 &&
-        posts.map((post) => {
-          const author = post.author ? post.author.username : 'Unknown';
-          return (
-            <article className='post-article'>
-              <Post
-                key={post._id}
-                id={post._id}
-                title={post.title}
-                summary={post.summary}
-                createdAt={post.createdAt}
-                author={author}
-                image={`${process.env.REACT_APP_API_URL}/${post.image}`}
-              />
-            </article>
-          );
-        })}
-      {posts.length === 0 && <p>No posts found</p>}
+      <ul className='--ul-homepage'>
+        {posts.length > 0 &&
+          posts.map((post) => {
+            const author = post.author ? post.author.username : 'Unknown';
+            return (
+              <li>
+                <article className='post-article'>
+                  <Post
+                    key={post._id}
+                    id={post._id}
+                    title={post.title}
+                    summary={post.summary}
+                    createdAt={post.createdAt}
+                    author={author}
+                    image={`${process.env.REACT_APP_API_URL}/${post.image}`}
+                  />
+                </article>
+              </li>
+            );
+          })}
+        {posts.length === 0 && <p>No posts found</p>}
+      </ul>
     </>
   );
 }
