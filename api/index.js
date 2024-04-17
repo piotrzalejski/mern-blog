@@ -153,19 +153,22 @@ app.post(
   refreshAccessToken,
   async (req, res) => {
     const { title, summary, content } = req.body;
+    let newPath = null;
     try {
       if (!title || !summary || !content) {
         throw new Error('Title, summary, and content are required');
       }
-      if (!req.file) {
-        throw new Error('Image is required');
-      }
+      // if (!req.file) {
+      //   throw new Error('Image is required');
+      // }
 
-      // saving image with original extension into uploads folder
-      const { originalname, path: oldPath } = req.file;
-      const ext = originalname.split('.').pop();
-      const newPath = oldPath + '.' + ext;
-      fs.renameSync(oldPath, newPath);
+      if (req.file && req.file !== undefined) {
+        // saving image with original extension into uploads folder
+        const { originalname, path: oldPath } = req.file;
+        const ext = originalname.split('.').pop();
+        newPath = oldPath + '.' + ext;
+        fs.renameSync(oldPath, newPath);
+      }
 
       const { sessionCookie } = req.cookies;
       jwt.verify(
@@ -177,6 +180,9 @@ app.post(
             res.status(400).json({ error: 'Token verification error' });
           }
           // create post, save to db
+          if (newPath === null) {
+            newPath = '';
+          }
           const postDoc = await Post.create({
             title: title,
             summary: summary,

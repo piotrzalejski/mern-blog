@@ -69,7 +69,6 @@ export default function CreatePostPage() {
             id='image'
             accept='image/*'
             onChange={(e) => setFile(e.target.files)}
-            required
           />
           <TipTapEditor onUpdate={handleUpdate} />
           <button type='submit' className='createbtn'>

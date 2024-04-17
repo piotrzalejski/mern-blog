@@ -17,7 +17,7 @@ const PostSchema = new mongoose.Schema(
     image: {
       // path to the image
       type: String,
-      required: [true, 'Please provide an image'],
+      // required: [true, 'Please provide an image'],
     },
     author: {
       // username of the author

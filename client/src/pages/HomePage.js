@@ -24,6 +24,9 @@ export default function HomePage() {
         {posts.length > 0 &&
           posts.map((post) => {
             const author = post.author ? post.author.username : 'Unknown';
+            const image = post.image
+              ? `${process.env.REACT_APP_API_URL}/${post.image}`
+              : null;
             return (
               <li>
                 <article className='post-article'>
@@ -34,7 +37,7 @@ export default function HomePage() {
                     summary={post.summary}
                     createdAt={post.createdAt}
                     author={author}
-                    image={`${process.env.REACT_APP_API_URL}/${post.image}`}
+                    image={image}
                   />
                 </article>
               </li>

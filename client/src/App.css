@@ -93,13 +93,18 @@ time,
   border-radius: 0.75rem;
 }
 
-.post-article:hover {
-  transform: scale(1.03);
+.post-article:focus-within {
+  outline: 1px solid #f97316;
   transition: 0.3s;
 }
 
-.post-article:focus-within {
-  outline: 1px solid #f97316;
+.post-article:focus-visible *,
+.post-article:focus-within * {
+  outline: none;
+}
+
+.post-article:hover {
+  transform: scale(1.03);
   transition: 0.3s;
 }
 
@@ -141,6 +146,13 @@ time {
   gap: 4rem;
   row-gap: 1rem;
   margin-top: 1.5rem;
+  outline: none;
+  border: none;
+}
+
+.focus-with\:outline:focus-within {
+  outline: 1px solid #f97316;
+  transition: 0.3s;
 }
 
 .post-title {
