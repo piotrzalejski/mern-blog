@@ -23,32 +23,43 @@ export default function PostPage() {
 
   return (
     Object.keys(postInfo).length > 0 && (
-      <>
+      <article className='post--article'>
         <Metadata title={postInfo.title} description={postInfo.summary} />
-        <div className='post-page'>
-          <time>
-            {format(new Date(postInfo.createdAt), 'MMM dd, yyyy HH:mm')}
-          </time>
-          <div className='post-page-author'>By: {postInfo.author.username}</div>
-          {user?.id === postInfo.author._id && (
-            <div>
-              <Link to={`/edit/${postInfo._id}`}>Edit</Link>
-            </div>
-          )}
-          <div className='post-image'>
-            <div className='image'>
-              <img
-                src={`${process.env.REACT_APP_API_URL}/${postInfo.image}`}
-                alt=''
-              />
-            </div>
+        <div className='postpage--image-wrap'>
+          <img
+            className='postpage--image'
+            src={`${process.env.REACT_APP_API_URL}/${postInfo.image}`}
+            alt=''
+            width={1500}
+            height={726}
+          />
+        </div>
+
+        <container className='postpage--container'>
+          <div className='post-container'>
+            <header className='postpage--header'>
+              <time>
+                {format(new Date(postInfo.createdAt), 'MMM dd, yyyy HH:mm')}
+              </time>
+
+              <h1 className='postpage--title'>{postInfo.title}</h1>
+
+              {user?.id === postInfo.author._id && (
+                <div>
+                  <Link to={`/edit/${postInfo._id}`}>Edit</Link>
+                </div>
+              )}
+              <div className='postpage--author'>
+                By: {postInfo.author.username}
+              </div>
+            </header>
             <div
-              className='post-content'
+              className='postpage--content'
               dangerouslySetInnerHTML={{ __html: postInfo.content }}
             />
           </div>
-        </div>
-      </>
+        </container>
+      </article>
     )
   );
 }
