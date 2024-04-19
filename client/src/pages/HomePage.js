@@ -15,7 +15,7 @@ export default function HomePage() {
     fetchPosts();
   }, []);
   return (
-    <>
+    <div className='homepage--main'>
       <Metadata
         title='My Blog - Homepage'
         description='Welcome to my homepage'
@@ -45,6 +45,6 @@ export default function HomePage() {
           })}
         {posts.length === 0 && <p>No posts found</p>}
       </ul>
-    </>
+    </div>
   );
 }

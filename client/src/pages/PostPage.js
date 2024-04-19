@@ -15,7 +15,6 @@ export default function PostPage() {
         `${process.env.REACT_APP_API_URL}/post/${params.id}`
       );
       const data = await res.json();
-      console.log(data.createdAt);
       setPostInfo(data);
     }
     getPost();
@@ -23,18 +22,21 @@ export default function PostPage() {
 
   return (
     Object.keys(postInfo).length > 0 && (
-      <article className='post--article'>
+      <section className='post--section'>
         <Metadata title={postInfo.title} description={postInfo.summary} />
         <div className='postpage--image-wrap'>
-          <img
-            className='postpage--image'
-            src={`${process.env.REACT_APP_API_URL}/${postInfo.image}`}
-            alt=''
-            width={1500}
-            height={726}
-          />
+          {postInfo.image && postInfo.image !== null ? (
+            <img
+              className='postpage--image'
+              src={`${process.env.REACT_APP_API_URL}/${postInfo.image}`}
+              alt=''
+              width={1500}
+              height={726}
+            />
+          ) : (
+            <div className='postpage--gradient' width={1500} height={726}></div>
+          )}
         </div>
-
         <container className='postpage--container'>
           <div className='post-container'>
             <header className='postpage--header'>
@@ -50,16 +52,17 @@ export default function PostPage() {
                 </div>
               )}
               <div className='postpage--author'>
-                By: {postInfo.author.username}
+                By {postInfo.author.username}
               </div>
+              <hr className='postpage--divider' />
             </header>
-            <div
+            <article
               className='postpage--content'
               dangerouslySetInnerHTML={{ __html: postInfo.content }}
             />
           </div>
         </container>
-      </article>
+      </section>
     )
   );
 }

@@ -40,9 +40,6 @@ main {
 
   font-family: 'Roboto', sans-serif;
   color: var(--text-color);
-  /* max-width: 900px; */
-  margin: 0 auto;
-  padding: 1rem;
 }
 
 /* HEADER */
@@ -173,9 +170,8 @@ time,
   gap: 2rem;
 }
 
-.post--article {
+.post--section {
   position: relative;
-  max-width: 1024px;
 }
 
 .post-page {
@@ -185,7 +181,9 @@ time,
 }
 
 .postpage--image-wrap {
-  margin-bottom: -4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .postpage--image {
@@ -194,19 +192,18 @@ time,
   width: 100%;
   min-height: 240px;
   max-height: 500px;
-  max-width: 100%;
+  max-width: 1024px;
   height: auto;
+  margin-bottom: -4rem;
 }
 
 .postpage--container {
-  max-width: 1024px;
+  max-width: 900px;
   display: grid;
   grid-template-columns: 1fr min(900px, 100%) 1fr;
-  grid-column-gap: 24px;
   margin-left: auto;
   margin-right: auto;
   row-gap: 10rem;
-  overflow: ;
 }
 
 .post-container {
@@ -233,9 +230,41 @@ time,
 .postpage--title {
   font-size: 3rem;
   line-height: 1.25;
-  margin: 0;
+  margin: 0.75rem 0 1.2rem 0;
 }
 
+.postpage--divider {
+  margin: 4rem -4rem;
+  border-color: rgb(64, 64, 65);
+}
+
+.postpage--content {
+  line-height: 1.7rem;
+  font-size: 1.25rem;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 768px;
+  letter-spacing: 0.025rem;
+  color: #bfc1c9;
+  font-weight: 300;
+}
+
+.postpage--gradient {
+  width: 100%;
+  height: 24rem;
+  background-image: linear-gradient(266.93deg, #f8e42e 0%, #ff7d54 100%);
+  max-width: 100%;
+  margin-bottom: -10rem;
+}
+/* ########################################################################## */
+
+/* ########################################################################## */
+/* ###########################     HomePage      ############################ */
+/* ########################################################################## */
+
+.homepage--main {
+  margin: 0 auto;
+}
 /* ########################################################################## */
 
 /* LOGIN */
