@@ -8,9 +8,9 @@ export default function ThemeSwitch() {
   return (
     <button className='theme-toggle' onClick={toggleTheme}>
       {theme === 'dark' ? (
-        <img src={moon} alt='dark mode' width={'20px'} height={'20px'} />
-      ) : (
         <img src={sun} alt='light mode' width={'20px'} height={'20px'} />
+      ) : (
+        <img src={moon} alt='dark mode' width={'20px'} height={'20px'} />
       )}
     </button>
   );
